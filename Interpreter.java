@@ -9,7 +9,7 @@ public class Interpreter {
     static String equals = "=";
     static String letter = "_|[a-z]|[A-Z]";
     static String literal = "0|[1-9][0-9]*";
-    static String identifier = "[_a-zA-Z][_a-zA-Z0-9]*";
+    static String identifier = "[_a-zA-Z][_a-zA-Z0-9]*"; // \\s* means any space in front of the identifier or none
 
     public static void main(String[] args) throws FileNotFoundException {
 
@@ -24,7 +24,7 @@ public class Interpreter {
 //            String[] results = interpret(line);
 //
 //        }
-        interpret("x = 23;");
+        interpret("x = 1;y = 2;z = ---(x+y)*(x+-y);");
     }
 
     public static String[] interpret(String line){
@@ -64,6 +64,7 @@ public class Interpreter {
         }
 
 //      then test if exp, semicologn has no space so remove a char
+        System.out.println("exp is " + tokens[2]);
         if(!exp(tokens[2])){
             System.out.println("syntax error, not an exp");
             return false;
@@ -79,15 +80,18 @@ public class Interpreter {
 //      every * must follow a fact, and be before a fact.
 
         //if * start, invalid, if * end, invalid
+
         if(token.charAt(0) == '*' || token.charAt(token.length()-1) == '*') return false;
 
 //        split the token into two at that * and check if the splits are term and fact
         for(int i = 1;i < token.length() - 1;i++){
+            System.out.println("this empty?" + token.substring(0,i) + ":");
             if(token.charAt(i) == '*') return term(token.substring(0,i)) && fact(token.substring(i+1));
         }
 
 //      if none of those, it has to be fact or invalid
 //        System.out.println("passed this test");
+        System.out.println("fact is " + token);
         return fact(token);
     }
 
@@ -96,12 +100,29 @@ public class Interpreter {
 //        exp can be Exp + Term | Exp - Term | Term
 
 //        first test if it finds + or - in between, because then it has to be an exp + term or exp - term
+//        if(token.charAt(token.length()-1) == '-' || token.charAt(token.length()-1) == '+')
+
+
         for(int i = 1;i < token.length() - 1;i++){
-            if(token.charAt(i) == '-') return exp(token.substring(0,i)) && term(token.substring(i+1));
-            if(token.charAt(i) == '+') return exp(token.substring(0,i)) && term(token.substring(i+1));
+            if(token.charAt(i) == '-' || token.charAt(i) == '+'){
+//                System.out.println("found -");
+//                System.out.println(token.substring(1,token.length()));
+//                System.out.println(token.substring(1,i));
+//                System.out.println(token.substring(i+1,token.length()-1));
+                //has to be a fact if - or + is first
+                if(i == 1){
+                    System.out.println(token.substring(1,token.length()));
+                    return fact(token.substring(1,token.length()));
+                }
+                //if not first, it has to be inbetween
+                System.out.println("this empty exp?" + token.substring(1,i) + ":");
+                return exp(token.substring(1,i)) && term(token.substring(i+1,token.length()));
+            }
         }
 
 //      if not any of those it will get here, so now it has to be term or its false
+        System.out.println("term is " + token);
+        System.out.println("this empty term?" + token + ":");
         return term(token);
     }
 //
@@ -112,13 +133,14 @@ public class Interpreter {
 
 //        //exp if inside () which we are
         if(token.charAt(0) == '(') {
-            //last char must be ) if first ( else error
-            if (token.charAt(token.length()-1) != ')') {
-                System.out.println("Syntax error: " + token + " expected: )");
-                return false;
+//            find the )
+            for(int i = 1; i < token.length();i++){
+                if(token.charAt(token.length()-1) == ')'){
+                    System.out.println("this empty exp??" + token.substring(1,i) + ":");
+                    return exp(token.substring(1,i));
+                }
             }
-//         then inbetween must be an exp
-            return exp(token.substring(1,token.length()-1));
+
         }
 
         //if start with + or -, must be another fact after that
