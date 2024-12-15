@@ -8,7 +8,6 @@ public class Interpreter {
     //      regex for every possible assignment
     static String equals = "=";
     static String letter = "_|[a-z]|[A-Z]";
-    static String digit = "[0-9]";
     static String literal = "0|[1-9][0-9]*";
     static String identifier = "[_a-zA-Z][_a-zA-Z0-9]*";
 
@@ -34,17 +33,6 @@ public class Interpreter {
         String[] results = new String[20];
 //      return empty map if any syntax error
 
-
-
-
-
-
-        // assignment test
-        String test = "x = 001;";
-
-
-//        System.out.println(Pattern.matches("[0-9]",
-//                "5"));
 
         String[] tokens = line.split(";");
 
@@ -125,7 +113,7 @@ public class Interpreter {
 //        //exp if inside () which we are
         if(token.charAt(0) == '(') {
             //last char must be ) if first ( else error
-            if (token.charAt(token.length()) != ')') {
+            if (token.charAt(token.length()-1) != ')') {
                 System.out.println("Syntax error: " + token + " expected: )");
                 return false;
             }
