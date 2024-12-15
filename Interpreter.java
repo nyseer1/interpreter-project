@@ -23,7 +23,7 @@ public class Interpreter {
 //            String[] results = interpret(line);
 //
 //        }
-        interpret("x = 1;y = 2;z = ---(x+y)*(x+-y);");
+        interpret("x = 1;y = 2;z = ---(x+y)*(x+-y);c;");
     }
 
     public static String[] interpret(String line){
@@ -39,7 +39,7 @@ public class Interpreter {
             if (!assignment(token)) passed = false;
         }
 
-        System.out.println("passed: " + passed);
+        System.out.println("passed: " + passed + " for the statement: " + line);
         return results;
     }
 
@@ -48,12 +48,23 @@ public class Interpreter {
 //      Assignment has to be Identifier = Exp;
         String[] tokens = token.split(" ");
 
-        for(String p : tokens) System.out.println("token is: " + p + ":");
+//        for(String p : tokens) System.out.println("token is: " + p + ":");
+        ;
+        if(tokens.length < 1){
+            System.out.println("empty semicologn, ignored");
+            return true;
+        }
 
 //      first test if identifier
         if(!Pattern.matches(identifier,tokens[0])){
             System.out.println("syntax error, not an identifier");
             return false;
+        }
+
+//      no assignment for the variable
+        if(tokens.length < 2){
+            System.out.println("variable " + tokens[0] + " was never initialized");
+            return true;
         }
 
 //      then test if =
@@ -63,7 +74,7 @@ public class Interpreter {
         }
 
 //      then test if exp, semicologn has no space so remove a char
-        System.out.println("exp is " + tokens[2]);
+//        System.out.println("exp is " + tokens[2]);
         if(!exp(tokens[2])){
             System.out.println("syntax error, not an exp");
             return false;
@@ -84,13 +95,13 @@ public class Interpreter {
 
 //        split the token into two at that * and check if the splits are term and fact
         for(int i = 1;i < token.length() - 1;i++){
-            System.out.println("this empty?" + token.substring(0,i) + ":");
+//            System.out.println("this empty?" + token.substring(0,i) + ":");
             if(token.charAt(i) == '*') return term(token.substring(0,i)) && fact(token.substring(i+1));
         }
 
 //      if none of those, it has to be fact or invalid
 //        System.out.println("passed this test");
-        System.out.println("fact is " + token);
+//        System.out.println("fact is " + token);
         return fact(token);
     }
 
@@ -109,18 +120,18 @@ public class Interpreter {
 //                System.out.println(token.substring(i+1,token.length()-1));
                 //has to be a fact if - or + is first
                 if(i == 1){
-                    System.out.println(token.substring(1,token.length()));
+//                    System.out.println(token.substring(1,token.length()));
                     return fact(token.substring(1,token.length()));
                 }
                 //if not first, it has to be inbetween
-                System.out.println("this empty exp?" + token.substring(1,i) + ":");
+//                System.out.println("this empty exp?" + token.substring(1,i) + ":");
                 return exp(token.substring(1,i)) && term(token.substring(i+1,token.length()));
             }
         }
 
 //      if not any of those it will get here, so now it has to be term or its false
-        System.out.println("term is " + token);
-        System.out.println("this empty term?" + token + ":");
+//        System.out.println("term is " + token);
+//        System.out.println("this empty term?" + token + ":");
         return term(token);
     }
 
@@ -131,31 +142,27 @@ public class Interpreter {
         if(token.charAt(0) == '(') {
 //            find the )
             int c = 1;
-            int i1 = 0;
-            int i2 = 0;
             for(int i = 1; i < token.length();i++ ){
 
                 if(token.charAt(i) == '('){
                     c++;
-                    i1=i;
 
 
                 }
                 if(token.charAt(i) == ')'){
                     c--;
-                    i2=i;
                 }
 
 
             }
             //if balanced
             if(c ==0){
-                System.out.println("found ( exp ) the exp is:  " + token.substring(i1+1,i2) + ":");
+//                System.out.println("found ( exp ) the exp is:  " + token.substring(i1+1,i2) + ":");
 //                    return exp(token.substring(i1+1,i2));
                 String[] splits = token.split("\\(|\\)");
 
                 for(int j = 1; j < splits.length;j++){
-                    System.out.println("split"+ splits[j]);
+//                    System.out.println("split"+ splits[j]);
                     if(splits[j].length() == 0) return true;
                     if(splits[j].charAt(0) == '*'){
                         return exp(splits[j-1]) && exp(splits[j+1]);
@@ -176,8 +183,8 @@ public class Interpreter {
             return fact(token.substring(1));
         }
         else if((token.charAt(0) == '-')){
-            System.out.println("correct");
-            System.out.println(token.substring(1));
+//            System.out.println("correct");
+//            System.out.println(token.substring(1));
             return fact(token.substring(1));
         }
 //      if starts with letter it has to be identifier or else it is syntax error
