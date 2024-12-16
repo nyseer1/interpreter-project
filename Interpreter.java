@@ -12,6 +12,7 @@ public class Interpreter {
     static String literal = "0|[1-9][0-9]*";
     static String identifier = "[_a-zA-Z][_a-zA-Z0-9]*"; // \\s* means any space in front of the identifier or none
     static ArrayList<String> constants = new ArrayList<>();
+    static Constant[] list = new Constant[50];
 
 
     public static void main(String[] args) throws FileNotFoundException {
@@ -26,76 +27,65 @@ public class Interpreter {
 //
 //        }
         Constant[] list = new Constant[50];
-        if ( interpret("x = 1;y = 2;z = ---(x+y)*(x+-y);c;") ) parse("x = 1;", list);
+        if ( interpret("x = 1;y = 2;z = ---(x+y)*(x+-y);c;") ) parse("x = 1;y = 2;z = y");
 
     }
 
-    public static int parse(String input, Constant[] list){
-//      variable
+    public static int parse(String input){
+//      initialize variable count, resets on every new set of assignment
         int var = 0;
         int storage = 0;
+
+        License.iConfirmNonCommercialUse("Nyseer");
 
 //        split up the assignments
         String[] tokens = input.split(";");
 
-//        for each assignment, do this:
-        for(String token : tokens){
-//            System.out.println(token);
+//        for each assignment do this:
+        for(String assignments : tokens){
 
-//            split into indentifer = exp
-            String[] splits = token.split(" ");
+            //split into indentifer = exp
+            String[] splits = assignments.split(" ");
 
-//          if exp exists, evaluate it
-            if(splits.length == 3){
-                String expression = splits[2];
+            //if the variable is not defined, add it to the list of constants, and the arraylist to find constants, then increment var count
+            if(!constants.contains(splits[0])){
+                constants.add(splits[0]);
 
-//              get all variables, add them to variable list
-                Pattern pattern = Pattern.compile(identifier);
-                Matcher matcher = pattern.matcher(input);
-                while (matcher.find()) {
-                    System.out.println("Full match: " + matcher.group(0));
-
-//                   if dosent exist in the constants arraylist, then it is the first assignment for the variable, add its value to list
-                    if(!constants.contains(matcher.group(0))){
-                        constants.add(matcher.group(0));
-                        switch (var) {
-                            case 0:
-                                list[var] = new Constant("x", Integer.parseInt(splits[2]));
-                                var++;
-                                break;
-                            case 1:
-                                list[var] = new Constant("y", Integer.parseInt(splits[2]));
-                                var++;
-                                break;
-                            case 2:
-                                list[var] = new Constant("z", Integer.parseInt(splits[2]));
-                                var++;
-                                break;
-                            case 3:
-                                list[var] = new Constant("z", Integer.parseInt(splits[2]));
-                                var++;
-                                break;
-                        }
-
-                    }
-                }
-
-
-
-
-                Constant x = new Constant("x", 2);
-                Constant y = new Constant("y", 3);
-
-                list[0] = x;
-                list[1] = y;
-                License.iConfirmNonCommercialUse("Nyseer");
-                Expression e = new Expression(input,list);
-                mXparser.consolePrintln("Res: " + e.getExpressionString() + " = " + e.calculate());
-
-
+                list[var] = new Constant(splits[0],new Expression(splits[2],list).calculate());
             }
 
+            //splits[2] is the exp, evaluates the expression
+            Expression e = new Expression(splits[2],list);
+
+//            print the evaluated expression based on which var it is
+            switch (var) {
+                case 0:
+                    mXparser.consolePrintln("Res: " + splits[0] + " = " + e.calculate());
+                    list[var] = new Constant("x", e.calculate());
+                    constants.add("x");
+                    var++;
+                    break;
+                case 1:
+                    mXparser.consolePrintln("Res: " + splits[0] + " = " + e.calculate());
+                    list[var] = new Constant("y", e.calculate());
+                    constants.add("y");
+                    var++;
+                    break;
+                case 2:
+                    mXparser.consolePrintln("Res: " + splits[0] + " = " + e.calculate());
+                    list[var] = new Constant("z", e.calculate());
+                    constants.add("z");
+                    var++;
+                    break;
+                case 3:
+                    mXparser.consolePrintln("Res: " + splits[0] + " = " + e.calculate());
+                    list[var] = new Constant("c", e.calculate());
+                    constants.add("c");
+                    var++;
+                    break;
+            }
         }
+
         return storage;
 
     }
