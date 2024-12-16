@@ -17,6 +17,9 @@ public class Interpreter {
 
     public static void main(String[] args) throws FileNotFoundException {
 
+        //dependency for parser package
+        License.iConfirmNonCommercialUse("Nyseer");
+
         //all data is in the form of x, y, z, c
         Scanner scnr = new Scanner(new File("input.txt"));
 
@@ -26,17 +29,15 @@ public class Interpreter {
             if (interpret(line)) parse(line);
 
         }
-//
+//          test
 //        if ( interpret("x = 1;y = 2;z = ---(x+y)*(x+-y);c;") ) parse("x = 1;y = 2;z = ---(x+y)*(x+-y);c;");
-
     }
 
+//    implements variable assignment to parser package and prints out each variables assignment
     public static int parse(String input){
 //      initialize variable count, resets on every new set of assignment
         int var = 0;
         int storage = 0;
-
-        License.iConfirmNonCommercialUse("Nyseer");
 
 //        split up the assignments
         String[] tokens = input.split(";");
@@ -61,29 +62,28 @@ public class Interpreter {
             if(splits.length > 2){
                 e = new Expression(splits[2],list);
             }
-
 //            print the evaluated expression based on which var it is
             switch (var) {
                 case 0:
-                    mXparser.consolePrintln("Res: " + splits[0] + " = " + e.calculate());
+                    System.out.println(splits[0] + " = " + e.calculate());
                     list[var] = new Constant("x", e.calculate());
                     constants.add("x");
                     var++;
                     break;
                 case 1:
-                    mXparser.consolePrintln("Res: " + splits[0] + " = " + e.calculate());
+                    System.out.println(splits[0] + " = " + e.calculate());
                     list[var] = new Constant("y", e.calculate());
                     constants.add("y");
                     var++;
                     break;
                 case 2:
-                    mXparser.consolePrintln("Res: " + splits[0] + " = " + e.calculate());
+                    System.out.println(splits[0] + " = " + e.calculate());
                     list[var] = new Constant("z", e.calculate());
                     constants.add("z");
                     var++;
                     break;
                 case 3:
-                    mXparser.consolePrintln("Res: " + splits[0] + " = " + e.calculate());
+                    System.out.println(splits[0] + " = " + e.calculate());
                     list[var] = new Constant("c", e.calculate());
                     constants.add("c");
                     var++;
@@ -91,10 +91,13 @@ public class Interpreter {
             }
         }
 
+//        line break
+        System.out.println("");
+
         return storage;
 
     }
-
+//    tests each assignment in a line if valid assignment using regex
     public static boolean interpret(String line){
         boolean passed = true;
         //using maps to map the identifier(key) to the expression(value)
@@ -107,11 +110,10 @@ public class Interpreter {
         for(String token : tokens){
             if (!assignment(token)) passed = false;
         }
-
         System.out.println("passed: " + passed + " for the statement: " + line);
         return passed;
     }
-
+//    individual assignment test, returns true if valid, false if invalid assignment
     public static boolean assignment(String token){
 
 //      Assignment has to be Identifier = Exp;
@@ -152,7 +154,7 @@ public class Interpreter {
 //      if passed through, it is correct
         return true;
     }
-
+//    individual term test
     public static boolean term(String token){
 
 //      term can be Term * Fact  | Fact
@@ -173,7 +175,7 @@ public class Interpreter {
 //        System.out.println("fact is " + token);
         return fact(token);
     }
-
+//    individual exp test
     public static boolean exp(String token){
 //        exp can be Exp + Term | Exp - Term | Term
 
@@ -203,7 +205,7 @@ public class Interpreter {
 //        System.out.println("this empty term?" + token + ":");
         return term(token);
     }
-
+//    individual fact test
     public static boolean fact(String token){
 //        fact can be ( Exp ) | - Fact | + Fact | Literal | Identifier
 
