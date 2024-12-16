@@ -2,6 +2,7 @@ import java.io.FileNotFoundException;
 import java.util.*;
 import java.io.File;
 import java.util.regex.*;
+import org.mariuszgromada.math.mxparser.*;
 
 public class Interpreter {
 
@@ -10,11 +11,12 @@ public class Interpreter {
     static String letter = "_|[a-z]|[A-Z]";
     static String literal = "0|[1-9][0-9]*";
     static String identifier = "[_a-zA-Z][_a-zA-Z0-9]*"; // \\s* means any space in front of the identifier or none
+    static ArrayList<String> constants = new ArrayList<>();
+
 
     public static void main(String[] args) throws FileNotFoundException {
 
-        //all data is in the form of x, y, z
-
+        //all data is in the form of x, y, z, c
         Scanner scnr = new Scanner(new File("input.txt"));
 
 //        while (scnr.hasNextLine()) {
@@ -23,10 +25,82 @@ public class Interpreter {
 //            String[] results = interpret(line);
 //
 //        }
-        interpret("x = 1;y = 2;z = ---(x+y)*(x+-y);c;");
+        Constant[] list = new Constant[50];
+        if ( interpret("x = 1;y = 2;z = ---(x+y)*(x+-y);c;") ) parse("x = 1;", list);
+
     }
 
-    public static String[] interpret(String line){
+    public static int parse(String input, Constant[] list){
+//      variable
+        int var = 0;
+        int storage = 0;
+
+//        split up the assignments
+        String[] tokens = input.split(";");
+
+//        for each assignment, do this:
+        for(String token : tokens){
+//            System.out.println(token);
+
+//            split into indentifer = exp
+            String[] splits = token.split(" ");
+
+//          if exp exists, evaluate it
+            if(splits.length == 3){
+                String expression = splits[2];
+
+//              get all variables, add them to variable list
+                Pattern pattern = Pattern.compile(identifier);
+                Matcher matcher = pattern.matcher(input);
+                while (matcher.find()) {
+                    System.out.println("Full match: " + matcher.group(0));
+
+//                   if dosent exist in the constants arraylist, then it is the first assignment for the variable, add its value to list
+                    if(!constants.contains(matcher.group(0))){
+                        constants.add(matcher.group(0));
+                        switch (var) {
+                            case 0:
+                                list[var] = new Constant("x", Integer.parseInt(splits[2]));
+                                var++;
+                                break;
+                            case 1:
+                                list[var] = new Constant("y", Integer.parseInt(splits[2]));
+                                var++;
+                                break;
+                            case 2:
+                                list[var] = new Constant("z", Integer.parseInt(splits[2]));
+                                var++;
+                                break;
+                            case 3:
+                                list[var] = new Constant("z", Integer.parseInt(splits[2]));
+                                var++;
+                                break;
+                        }
+
+                    }
+                }
+
+
+
+
+                Constant x = new Constant("x", 2);
+                Constant y = new Constant("y", 3);
+
+                list[0] = x;
+                list[1] = y;
+                License.iConfirmNonCommercialUse("Nyseer");
+                Expression e = new Expression(input,list);
+                mXparser.consolePrintln("Res: " + e.getExpressionString() + " = " + e.calculate());
+
+
+            }
+
+        }
+        return storage;
+
+    }
+
+    public static boolean interpret(String line){
         boolean passed = true;
         //using maps to map the identifier(key) to the expression(value)
         String[] results = new String[20];
@@ -40,7 +114,7 @@ public class Interpreter {
         }
 
         System.out.println("passed: " + passed + " for the statement: " + line);
-        return results;
+        return passed;
     }
 
     public static boolean assignment(String token){
