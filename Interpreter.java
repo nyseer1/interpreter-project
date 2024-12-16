@@ -20,14 +20,14 @@ public class Interpreter {
         //all data is in the form of x, y, z, c
         Scanner scnr = new Scanner(new File("input.txt"));
 
-//        while (scnr.hasNextLine()) {
-//            String line = scnr.nextLine();
+        while (scnr.hasNextLine()) {
+            String line = scnr.nextLine();
+
+            if (interpret(line)) parse(line);
+
+        }
 //
-//            String[] results = interpret(line);
-//
-//        }
-        Constant[] list = new Constant[50];
-        if ( interpret("x = 1;y = 2;z = ---(x+y)*(x+-y);c;") ) parse("x = 1;y = 2;z = y");
+//        if ( interpret("x = 1;y = 2;z = ---(x+y)*(x+-y);c;") ) parse("x = 1;y = 2;z = ---(x+y)*(x+-y);c;");
 
     }
 
@@ -51,11 +51,16 @@ public class Interpreter {
             if(!constants.contains(splits[0])){
                 constants.add(splits[0]);
 
-                list[var] = new Constant(splits[0],new Expression(splits[2],list).calculate());
-            }
+                if(splits.length > 2){
+                    list[var] = new Constant(splits[0],new Expression(splits[2],list).calculate());
+                }
 
+            }
+            Expression e = new Expression("",list);
             //splits[2] is the exp, evaluates the expression
-            Expression e = new Expression(splits[2],list);
+            if(splits.length > 2){
+                e = new Expression(splits[2],list);
+            }
 
 //            print the evaluated expression based on which var it is
             switch (var) {
